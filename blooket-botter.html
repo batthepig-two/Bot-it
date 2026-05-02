@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blooket Botter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #1b3a6b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 60px;
+      color: #fff;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      margin-top: 8px;
+    }
+    .logo-b {
+      background: #fff;
+      color: #1b3a6b;
+      font-size: 2rem;
+      font-weight: 900;
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    }
+    .logo-text { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
+    .logo-text span { color: #f6a623; }
+
+    .card {
+      background: #fff;
+      color: #333;
+      border-radius: 16px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.35);
+    }
+    .card h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #1b3a6b;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      padding: 13px 15px;
+      border: 2.5px solid #d0d0d0;
+      border-radius: 10px;
+      font-size: 1.25rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      color: #222;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: #1b3a6b; }
+
+    .divider {
+      border: none;
+      border-top: 2px solid #eee;
+      margin: 18px 0;
+    }
+
+    /* Flood row */
+    .flood-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .flood-toggle {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .flood-toggle input { opacity: 0; width: 0; height: 0; }
+    .flood-slider {
+      position: absolute;
+      inset: 0;
+      background: #ccc;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .flood-slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+    }
+    .flood-toggle input:checked + .flood-slider { background: #1b3a6b; }
+    .flood-toggle input:checked + .flood-slider::before { transform: translateX(20px); }
+    .flood-row-label { font-size: .92rem; font-weight: 800; color: #444; }
+
+    .flood-count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .flood-count-row label {
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #666;
+      white-space: nowrap;
+    }
+    .flood-count-row input[type="number"] {
+      width: 90px;
+      padding: 10px 12px;
+      border: 2.5px solid #d0d0d0;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      color: #222;
+      outline: none;
+    }
+    .flood-count-row input[type="number"]:focus { border-color: #1b3a6b; }
+    .flood-hint { font-size: .75rem; font-weight: 700; color: #999; }
+
+    /* Name mode */
+    .name-mode-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .name-mode-btn {
+      flex: 1;
+      padding: 9px 6px;
+      border: 2.5px solid #d0d0d0;
+      border-radius: 10px;
+      background: #f7f7f7;
+      font-family: 'Nunito', sans-serif;
+      font-size: .82rem;
+      font-weight: 800;
+      color: #555;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color .15s, background .15s;
+    }
+    .name-mode-btn.active {
+      border-color: #1b3a6b;
+      background: #e8edf8;
+      color: #1b3a6b;
+    }
+
+    /* Speed */
+    .speed-wrap { margin-bottom: 18px; }
+    .speed-wrap label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .speed-wrap label span { color: #1b3a6b; }
+    input[type="range"] { width: 100%; accent-color: #1b3a6b; cursor: pointer; }
+    .speed-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: .72rem;
+      font-weight: 700;
+      color: #bbb;
+      margin-top: 3px;
+    }
+
+    /* Option toggle row */
+    .opt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .opt-row-label { font-size: .9rem; font-weight: 800; color: #444; flex: 1; }
+    .opt-row small { font-size: .74rem; font-weight: 700; color: #999; display: block; }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: #1b3a6b; color: #fff; box-shadow: 0 4px 0 #0f2244; }
+    .btn-primary:hover { background: #254d8f; }
+    .btn-danger { background: #e21b3c; color: #fff; box-shadow: 0 4px 0 #a01229; margin-top: 14px; }
+    .btn-danger:hover { background: #f52248; }
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-row .btn { margin-top: 0; }
+    .btn-crash { background: #e21b3c; color: #fff; box-shadow: 0 4px 0 #a01229; }
+    .btn-crash:hover { background: #f52248; }
+
+    /* Active */
+    #active { width: 100%; max-width: 440px; display: none; flex-direction: column; gap: 14px; }
+
+    .status-bar {
+      background: rgba(255,255,255,.15);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .badge-connecting { background: #f6a623; color: #333; }
+    .badge-joined     { background: #26890c; color: #fff; }
+    .badge-answering  { background: #1368ce; color: #fff; }
+    .badge-finished   { background: #e21b3c; color: #fff; }
+    .badge-error      { background: #e21b3c; color: #fff; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .stat-box {
+      background: rgba(255,255,255,.15);
+      border-radius: 12px;
+      padding: 12px 6px;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 1.5rem; font-weight: 900; }
+    .stat-box .lbl { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; opacity: .8; }
+
+    .flood-bar-wrap {
+      background: rgba(255,255,255,.15);
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+    .flood-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .82rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .flood-bar-track {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,.2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .flood-bar-fill {
+      height: 100%;
+      background: #f6a623;
+      border-radius: 999px;
+      transition: width .4s;
+      width: 0%;
+    }
+
+    .log-box {
+      background: rgba(0,0,0,.25);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: .8rem;
+      font-weight: 700;
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .log-entry { opacity: .9; line-height: 1.4; }
+    .log-entry.dim { opacity: .5; }
+    .log-entry.ok { color: #7fffb0; }
+    .log-entry.err { color: #ff8080; }
+  </style>
+</head>
+<body>
+
+<div class="logo-wrap">
+  <div class="logo-b">B!</div>
+  <div class="logo-text">blooket<span>botter</span></div>
+</div>
+
+<!-- Setup -->
+<div class="card" id="setup">
+  <h2>Flood &amp; Auto-Answer</h2>
+
+  <div class="field">
+    <label>Game Code</label>
+    <input type="text" id="code" placeholder="123456" />
+  </div>
+
+  <div class="field">
+    <label>Bot Name</label>
+    <input type="text" id="nick" placeholder="Bot" maxlength="15" />
+  </div>
+
+  <hr class="divider" />
+
+  <div class="flood-count-row">
+    <label>Number of bots</label>
+    <input type="number" id="bot-count" value="5" min="1" max="100" />
+    <span class="flood-hint">max 100</span>
+  </div>
+
+  <div class="field">
+    <label>Bot names</label>
+    <div class="name-mode-row">
+      <button class="name-mode-btn active" id="mode-numbered">123 Numbered</button>
+      <button class="name-mode-btn" id="mode-random">🎲 Random names</button>
+    </div>
+  </div>
+
+  <div class="speed-wrap">
+    <label>Answer Delay <span id="delay-label">1.5 s</span></label>
+    <input type="range" id="speed" min="0" max="5000" step="100" value="1500" />
+    <div class="speed-labels"><span>Instant</span><span>Slow</span></div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="opt-row">
+    <label class="flood-toggle">
+      <input type="checkbox" id="auto-answer-toggle" checked />
+      <span class="flood-slider"></span>
+    </label>
+    <span class="opt-row-label">
+      Auto-answer questions
+      <small>Picks correct answer when available, random otherwise</small>
+    </span>
+  </div>
+
+  <button class="btn btn-primary" id="start-btn">🚀 Start Bots</button>
+  <div class="btn-row">
+    <button class="btn btn-crash" id="crash-btn">⚡ Max Flood (100)</button>
+  </div>
+</div>
+
+<!-- Active -->
+<div id="active">
+  <div class="status-bar">
+    <span class="badge badge-connecting" id="state-badge">Connecting</span>
+    <span style="font-size:1rem;font-weight:900;">blooket<span style="color:#f6a623">botter</span></span>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box"><div class="num" id="stat-joined">0</div><div class="lbl">Joined</div></div>
+    <div class="stat-box"><div class="num" id="stat-failed">0</div><div class="lbl">Failed</div></div>
+    <div class="stat-box"><div class="num" id="stat-target">0</div><div class="lbl">Target</div></div>
+  </div>
+
+  <div class="flood-bar-wrap" id="flood-bar-wrap">
+    <div class="flood-bar-label">
+      <span>Bots joined</span>
+      <span id="flood-bar-text">0 / 0</span>
+    </div>
+    <div class="flood-bar-track"><div class="flood-bar-fill" id="flood-bar-fill"></div></div>
+  </div>
+
+  <div class="log-box" id="log"></div>
+  <button class="btn btn-danger" id="stop-btn">Stop</button>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCA-cTOnX19f6LFnDVVsHXya3k6ByP_MnU",
+  authDomain: "blooket-2020.firebaseapp.com",
+  databaseURL: "https://blooket-2020-default-rtdb.firebaseio.com",
+  projectId: "blooket-2020",
+  storageBucket: "blooket-2020.appspot.com",
+  messagingSenderId: "741533559504",
+  appId: "1:741533559504:web:b04e82c19af40f3e"
+};
+
+const KIDS_NAMES = [
+  'Emma','Liam','Olivia','Noah','Ava','Elijah','Sophia','James','Isabella','Oliver',
+  'Mia','William','Charlotte','Benjamin','Amelia','Lucas','Harper','Henry','Evelyn',
+  'Alexander','Luna','Mason','Camila','Ethan','Aria','Daniel','Scarlett','Jacob',
+  'Penelope','Logan','Layla','Jackson','Riley','Sebastian','Zoey','Jack','Nora',
+  'Aiden','Lily','Owen','Eleanor','Samuel','Hannah','Matthew','Lillian','Joseph',
+  'Addison','Levi','Aubrey','Mateo','Ellie','David','Stella','John','Natalie',
+];
+
+let usedNames = [];
+let nameMode = 'numbered';
+let delay = 1500;
+let autoAnswer = true;
+let allApps = [];
+let joinedCount = 0, failedCount = 0, targetCount = 0;
+
+const $ = id => document.getElementById(id);
+
+function pickName(base, index) {
+  if (nameMode === 'random') {
+    if (usedNames.length >= KIDS_NAMES.length) usedNames = [];
+    const pool = KIDS_NAMES.filter(n => !usedNames.includes(n));
+    const name = pool[Math.floor(Math.random() * pool.length)];
+    usedNames.push(name);
+    return name;
+  }
+  return `${base}${index + 1}`;
+}
+
+$('speed').addEventListener('input', e => {
+  delay = +e.target.value;
+  $('delay-label').textContent = delay === 0 ? 'Instant' : (delay/1000).toFixed(1) + ' s';
+});
+$('mode-numbered').addEventListener('click', () => {
+  nameMode = 'numbered';
+  $('mode-numbered').classList.add('active');
+  $('mode-random').classList.remove('active');
+});
+$('mode-random').addEventListener('click', () => {
+  nameMode = 'random';
+  $('mode-random').classList.add('active');
+  $('mode-numbered').classList.remove('active');
+});
+$('auto-answer-toggle').addEventListener('change', e => { autoAnswer = e.target.checked; });
+
+$('start-btn').addEventListener('click', () => {
+  const code = $('code').value.trim();
+  const nick = $('nick').value.trim() || 'Bot';
+  if (!code) { $('code').focus(); return; }
+  const count = Math.min(Math.max(parseInt($('bot-count').value) || 1, 1), 100);
+  launchBots(code, nick, count);
+});
+
+$('crash-btn').addEventListener('click', () => {
+  const code = $('code').value.trim();
+  const nick = $('nick').value.trim() || 'Bot';
+  if (!code) { $('code').focus(); return; }
+  launchBots(code, nick, 100);
+});
+
+$('stop-btn').addEventListener('click', () => {
+  // Clean up all firebase apps
+  allApps.forEach(app => { try { app.delete(); } catch {} });
+  allApps = [];
+  showSetup();
+});
+
+function showSetup() {
+  $('setup').style.display = '';
+  $('active').style.display = 'none';
+}
+function showActive() {
+  $('setup').style.display = 'none';
+  $('active').style.display = 'flex';
+  $('active').style.flexDirection = 'column';
+}
+
+function log(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = 'log-entry' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  const box = $('log');
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  if (box.children.length > 150) box.removeChild(box.firstChild);
+}
+
+function setBadge(text, cls) {
+  const b = $('state-badge');
+  b.textContent = text;
+  b.className = 'badge badge-' + cls;
+}
+
+function updateStats() {
+  $('stat-joined').textContent = joinedCount;
+  $('stat-failed').textContent = failedCount;
+  $('stat-target').textContent = targetCount;
+  const pct = targetCount ? (joinedCount / targetCount * 100) : 0;
+  $('flood-bar-fill').style.width = pct + '%';
+  $('flood-bar-text').textContent = `${joinedCount} / ${targetCount}`;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function launchBots(code, baseNick, count) {
+  allApps.forEach(app => { try { app.delete(); } catch {} });
+  allApps = [];
+  joinedCount = 0; failedCount = 0; targetCount = count;
+  usedNames = [];
+  $('log').innerHTML = '';
+  updateStats();
+  showActive();
+  setBadge('Connecting', 'connecting');
+  log(`Launching ${count} bot${count > 1 ? 's' : ''} into game ${code}…`);
+
+  for (let i = 0; i < count; i++) {
+    const nick = pickName(baseNick, i);
+    joinBot(code, nick, i);
+    await sleep(150);
+  }
+}
+
+async function joinBot(code, name, index) {
+  try {
+    // Step 1: join the game via Blooket's API
+    const joinRes = await fetch('https://fb.blooket.com/c/firebase/join', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: code, name })
+    });
+
+    const joinData = await joinRes.json();
+
+    if (!joinData.success) {
+      log(`${name}: join failed — ${joinData.msg || 'unknown error'}`, 'err');
+      failedCount++;
+      updateStats();
+      return;
+    }
+
+    const token = joinData.token;
+
+    // Step 2: init a new Firebase app instance per bot
+    const appName = `bot-${index}-${Date.now()}`;
+    const app = firebase.initializeApp(FIREBASE_CONFIG, appName);
+    allApps.push(app);
+
+    // Step 3: sign in with the token
+    await app.auth().signInWithCustomToken(token);
+
+    log(`✓ ${name} joined!`, 'ok');
+    joinedCount++;
+    updateStats();
+    if (joinedCount === 1) setBadge('Joined', 'joined');
+    if (joinedCount >= targetCount) {
+      setBadge('Joined', 'joined');
+      log(`All ${targetCount} bots joined! Waiting for game to start…`, 'ok');
+    }
+
+    if (autoAnswer) {
+      // Step 4: listen for questions in Firebase
+      const db = app.database();
+      const gameRef = db.ref(`games/${code}`);
+
+      let lastQuestion = null;
+
+      gameRef.on('value', snapshot => {
+        const game = snapshot.val();
+        if (!game) return;
+
+        // Detect question phase
+        const question = game.question;
+        if (!question || question === lastQuestion) return;
+        lastQuestion = question;
+
+        // Get answers
+        const answers = game.answers || [];
+        const correctIndex = answers.findIndex(a => a.correct);
+        const choice = correctIndex >= 0 ? correctIndex : Math.floor(Math.random() * answers.length);
+
+        setTimeout(async () => {
+          try {
+            await db.ref(`games/${code}/players/${name}`).update({
+              answer: choice,
+              time: Date.now()
+            });
+            log(`${name}: answered Q${question} → choice ${choice + 1}`, 'dim');
+          } catch (e) {
+            // silently fail
+          }
+        }, delay + Math.random() * 300);
+      });
+    }
+
+  } catch (err) {
+    log(`${name}: error — ${err.message}`, 'err');
+    failedCount++;
+    updateStats();
+  }
+}
+</script>
+</body>
+</html>
