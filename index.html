@@ -508,17 +508,24 @@ async function joinGame() {
   try {
     let data;
 try {
-  data = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://fb.blooket.com/c/firebase/join'));
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = () => {
-      try { resolve(JSON.parse(xhr.responseText)); }
-      catch(e) { reject(new Error('Bad response: ' + xhr.responseText.substring(0, 80))); }
-    };
-    xhr.onerror = () => reject(new Error('Network error'));
-    xhr.send(JSON.stringify({ id: code, name }));
-  });
+  const proxies = [
+    (b) => fetch('https://corsproxy.io/?' + encodeURIComponent('https://fb.blooket.com/c/firebase/join'), { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b) }),
+    (b) => fetch('https://proxy.cors.sh/https://fb.blooket.com/c/firebase/join', { method:'PUT', headers:{'Content-Type':'application/json','x-cors-api-key':'temp_' + Math.random()}, body: JSON.stringify(b) }),
+    (b) => fetch('https://cors-anywhere.herokuapp.com/https://fb.blooket.com/c/firebase/join', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b) }),
+    (b) => fetch('https://thingproxy.freeboard.io/fetch/https://fb.blooket.com/c/firebase/join', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b) }),
+  ];
+
+  let lastErr = '';
+  for (const proxy of proxies) {
+    try {
+      const res = await proxy({ id: code, name });
+      const text = await res.text();
+      if (!text || text.startsWith('<')) { lastErr = 'Blocked: ' + text.substring(0,40); continue; }
+      data = JSON.parse(text);
+      break;
+    } catch(e) { lastErr = e.message; continue; }
+  }
+  if (!data) throw new Error('All proxies failed: ' + lastErr);
 } catch(err) {
   showError('Connection failed: ' + err.message);
   return;
