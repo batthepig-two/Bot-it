@@ -141,6 +141,12 @@
     #toast.info{background:var(--purple);color:#fff}
   </style>
 </head>
+<div style="text-align:center;font-size:.75rem;font-weight:800;color:rgba(255,255,255,.35);margin-top:24px;padding-bottom:16px">
+  Last updated: <span id="last-updated"></span>
+</div>
+<script>
+  document.getElementById('last-updated').textContent = document.lastModified;
+</script>
 <body>
 
 <!-- Toast -->
