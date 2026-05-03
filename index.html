@@ -508,18 +508,19 @@ async function joinGame() {
   try {
     let data;
 try {
-  const res = await fetch(PROXY_URL, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: code, name })
+  data = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', 'https://corsproxy.io/?https://fb.blooket.com/c/firebase/join');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = () => {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch(e) { reject(new Error('Bad response: ' + xhr.responseText.substring(0, 80))); }
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(JSON.stringify({ id: code, name }));
   });
-  data = await res.json();
 } catch(err) {
   showError('Connection failed: ' + err.message);
-  return;
-}
-if (!data.success) {
-  showError(data.msg || 'Could not join game. Check the code.');
   return;
 }
 
