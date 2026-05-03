@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blooket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#1a1a2e;--card:#fff;--purple:#5e4bc8;--yellow:#f6a623;
+      --red:#e21b3c;--blue:#1368ce;--gold:#d89e00;--green:#26890c;
+      --panel:#2d2b55;--panel2:#3d3b70;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:#fff;overflow-x:hidden}
+
+    /* ── SCREENS ── */
+    .screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+    .screen.active{display:flex}
+
+    /* ── JOIN SCREEN ── */
+    #join-screen{background:linear-gradient(135deg,#1a1a2e 0%,#2d2b55 100%)}
+    .blooket-logo{font-size:2.8rem;font-weight:900;letter-spacing:-1px;margin-bottom:32px;cursor:pointer;user-select:none}
+    .blooket-logo span{color:var(--yellow)}
+    .join-card{background:#fff;border-radius:20px;padding:32px 28px;width:100%;max-width:420px;box-shadow:0 12px 50px rgba(0,0,0,.4)}
+    .join-card h2{color:var(--purple);font-size:1.5rem;font-weight:900;text-align:center;margin-bottom:24px}
+    .jfield{margin-bottom:16px}
+    .jfield label{display:block;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#777;margin-bottom:6px}
+    .jfield input{width:100%;padding:14px 16px;border:2.5px solid #ddd;border-radius:12px;font-size:1.3rem;font-family:'Nunito',sans-serif;font-weight:800;color:#222;outline:none;transition:border-color .2s}
+    .jfield input:focus{border-color:var(--purple)}
+    .btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;cursor:pointer;transition:transform .1s,filter .1s}
+    .btn:active{transform:scale(.97)}
+    .btn-join{background:var(--purple);color:#fff;box-shadow:0 5px 0 #3a2b8f;margin-top:8px}
+    .btn-join:hover{filter:brightness(1.1)}
+    .join-err{color:var(--red);font-size:.85rem;font-weight:800;text-align:center;margin-top:10px;display:none}
+
+    /* ── LOBBY SCREEN ── */
+    #lobby-screen{background:linear-gradient(135deg,#1a1a2e 0%,#2d2b55 100%);justify-content:flex-start;padding-top:30px}
+    .lobby-header{text-align:center;margin-bottom:24px}
+    .lobby-header .game-code{font-size:1rem;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:4px}
+    .lobby-header .game-pin{font-size:2.8rem;font-weight:900;letter-spacing:4px;color:#fff}
+    .lobby-header .waiting{font-size:1rem;font-weight:800;color:rgba(255,255,255,.7);margin-top:8px}
+    .player-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:420px;margin-bottom:20px}
+    .player-tile{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 6px;text-align:center}
+    .player-tile .blook{font-size:2rem;display:block;margin-bottom:4px}
+    .player-tile .pname{font-size:.72rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .player-count{font-size:1rem;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:16px}
+
+    /* ── QUESTION SCREEN ── */
+    #question-screen{background:linear-gradient(135deg,#1a1a2e 0%,#2d2b55 100%);justify-content:flex-start;padding-top:20px}
+    .q-header{width:100%;max-width:500px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .q-timer{background:rgba(255,255,255,.15);border-radius:999px;padding:8px 20px;font-size:1.1rem;font-weight:900}
+    .q-points{background:rgba(255,255,255,.15);border-radius:999px;padding:8px 20px;font-size:1rem;font-weight:900}
+    .q-card{background:#fff;border-radius:16px;padding:24px 20px;width:100%;max-width:500px;margin-bottom:16px;box-shadow:0 6px 30px rgba(0,0,0,.3)}
+    .q-text{font-size:1.2rem;font-weight:900;color:#222;text-align:center;line-height:1.4}
+    .answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:500px}
+    .answer-tile{border:none;border-radius:14px;padding:18px 12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;color:#fff;cursor:pointer;text-align:center;line-height:1.3;transition:transform .1s,filter .1s;position:relative;min-height:70px;display:flex;align-items:center;justify-content:center}
+    .answer-tile:active{transform:scale(.96)}
+    .answer-tile.t0{background:var(--red);box-shadow:0 5px 0 #8f0f22}
+    .answer-tile.t1{background:var(--blue);box-shadow:0 5px 0 #0a3f7a}
+    .answer-tile.t2{background:var(--gold);box-shadow:0 5px 0 #7a5a00}
+    .answer-tile.t3{background:var(--green);box-shadow:0 5px 0 #14500a}
+    .answer-tile.correct{outline:4px solid #fff;box-shadow:0 0 0 8px rgba(0,207,119,.5)!important;filter:brightness(1.2)}
+    .answer-tile.wrong{opacity:.4}
+    .answer-tile.chosen{transform:scale(1.03)}
+    .correct-badge{position:absolute;top:-10px;right:-10px;background:#00cf77;color:#fff;border-radius:999px;font-size:.7rem;font-weight:900;padding:3px 8px}
+
+    /* ── GOLD QUEST SCREEN ── */
+    #gold-screen{background:linear-gradient(135deg,#1a1a2e 0%,#2d2b55 100%);justify-content:flex-start;padding-top:20px}
+    .gold-header{text-align:center;margin-bottom:24px;width:100%}
+    .gold-header h2{font-size:1.4rem;font-weight:900}
+    .gold-amount{font-size:3rem;font-weight:900;color:var(--yellow)}
+    .chest-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;max-width:500px;margin-bottom:20px}
+    .chest{background:rgba(255,255,255,.1);border-radius:14px;padding:20px 14px;text-align:center;cursor:pointer;transition:transform .15s,background .15s;flex:1;min-width:70px;position:relative}
+    .chest:hover{background:rgba(255,255,255,.2);transform:translateY(-4px)}
+    .chest-icon{font-size:2.5rem;display:block;margin-bottom:6px}
+    .chest-label{font-size:.75rem;font-weight:800;color:rgba(255,255,255,.7)}
+    .chest-esp-text{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:var(--yellow);color:#000;border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:900;white-space:nowrap;display:none}
+    .chest-esp-text.visible{display:block}
+    .steal-notif{background:var(--red);color:#fff;border-radius:12px;padding:12px 16px;text-align:center;font-weight:900;font-size:.9rem;display:none;width:100%;max-width:500px;margin-bottom:12px}
+    .steal-notif.show{display:block}
+
+    /* ── RESULT SCREEN ── */
+    #result-screen{background:linear-gradient(135deg,#1a1a2e 0%,#2d2b55 100%)}
+    .result-card{background:rgba(255,255,255,.1);border-radius:20px;padding:32px 24px;text-align:center;width:100%;max-width:420px}
+    .result-rank{font-size:.9rem;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:8px}
+    .result-blook{font-size:4rem;margin-bottom:12px}
+    .result-name{font-size:1.5rem;font-weight:900;margin-bottom:4px}
+    .result-gold{font-size:2.5rem;font-weight:900;color:var(--yellow)}
+    .leaderboard{width:100%;max-width:420px;margin-top:16px;display:flex;flex-direction:column;gap:8px}
+    .lb-row{background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+    .lb-row.me{background:rgba(255,193,7,.2);border:2px solid var(--yellow)}
+    .lb-rank{font-size:.9rem;font-weight:900;color:rgba(255,255,255,.6);width:30px}
+    .lb-name{flex:1;font-weight:800}
+    .lb-gold{font-weight:900;color:var(--yellow)}
+
+    /* ── CHEAT PANEL ── */
+    #cheat-panel{
+      position:fixed;bottom:0;left:0;right:0;
+      background:#1e1b3a;
+      border-radius:24px 24px 0 0;
+      padding:20px 20px 40px;
+      transform:translateY(100%);
+      transition:transform .35s cubic-bezier(.4,0,.2,1);
+      z-index:1000;
+      max-height:85vh;
+      overflow-y:auto;
+      box-shadow:0 -8px 40px rgba(0,0,0,.5);
+    }
+    #cheat-panel.open{transform:translateY(0)}
+    .panel-handle{width:48px;height:5px;background:rgba(255,255,255,.3);border-radius:999px;margin:0 auto 20px}
+    .panel-title{font-size:1.3rem;font-weight:900;text-align:center;margin-bottom:20px;color:var(--yellow)}
+    .hack-section{margin-bottom:20px}
+    .hack-section-title{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px}
+    .hack-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .hack-label{flex:1;font-size:.9rem;font-weight:800;color:#fff}
+    .hack-label small{display:block;font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5)}
+    .toggle{position:relative;width:46px;height:26px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;inset:0;background:#444;border-radius:999px;cursor:pointer;transition:background .2s}
+    .toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
+    .toggle input:checked+.toggle-slider{background:var(--purple)}
+    .toggle input:checked+.toggle-slider::before{transform:translateX(20px)}
+    .hack-input{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;padding:8px 12px;width:100px;outline:none}
+    .hack-input:focus{border-color:var(--purple)}
+    .hack-btn{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-family:'Nunito',sans-serif;font-weight:900;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:filter .1s}
+    .hack-btn:hover{filter:brightness(1.15)}
+    .hack-btn.danger{background:var(--red)}
+    .hack-btn.gold{background:var(--gold)}
+    .hack-btn.green{background:var(--green)}
+    .hack-full{width:100%}
+    select.hack-input{width:100%;cursor:pointer}
+    textarea.hack-input{width:100%;height:60px;resize:none}
+    .log-panel{background:rgba(0,0,0,.3);border-radius:10px;padding:10px;font-size:.72rem;font-weight:700;max-height:100px;overflow-y:auto;margin-top:8px;color:rgba(255,255,255,.7)}
+
+    /* ── STATUS TOAST ── */
+    #toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:#fff;color:#333;border-radius:12px;padding:12px 24px;font-weight:900;font-size:.9rem;box-shadow:0 6px 30px rgba(0,0,0,.3);transition:transform .3s;z-index:2000;white-space:nowrap}
+    #toast.show{transform:translateX(-50%) translateY(0)}
+    #toast.success{background:#00cf77;color:#fff}
+    #toast.error{background:var(--red);color:#fff}
+    #toast.info{background:var(--purple);color:#fff}
+  </style>
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Cheat Panel -->
+<div id="cheat-panel">
+  <div class="panel-handle"></div>
+  <div class="panel-title">🎮 Cheat Panel</div>
+
+  <!-- GLOBAL -->
+  <div class="hack-section">
+    <div class="hack-section-title">🌐 Global</div>
+    <div class="hack-row">
+      <div class="hack-label">Auto-Answer<small>Picks correct answer automatically</small></div>
+      <label class="toggle"><input type="checkbox" id="hack-auto-answer"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Answer Delay</div>
+      <input type="number" class="hack-input" id="hack-delay" value="500" min="0" max="9999" style="width:80px"/>
+      <span style="font-size:.8rem;color:rgba(255,255,255,.5)">ms</span>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Flood Bots<small>Sends fake players into the game</small></div>
+      <input type="number" class="hack-input" id="hack-flood-count" value="10" min="1" max="100" style="width:70px"/>
+      <button class="hack-btn" onclick="floodBots()">Flood</button>
+    </div>
+  </div>
+
+  <!-- GOLD QUEST -->
+  <div class="hack-section">
+    <div class="hack-section-title">🏅 Gold Quest</div>
+    <div class="hack-row">
+      <div class="hack-label">Set My Gold</div>
+      <input type="number" class="hack-input" id="hack-gold-amount" value="9999" min="0"/>
+      <button class="hack-btn gold" onclick="setGold()">Set</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Chest ESP<small>See what's inside every chest</small></div>
+      <label class="toggle"><input type="checkbox" id="hack-chest-esp" onchange="toggleChestESP()"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Steal Gold From</div>
+      <select class="hack-input" id="hack-steal-target" style="width:120px"></select>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Steal Amount</div>
+      <input type="number" class="hack-input" id="hack-steal-amount" value="500" min="1"/>
+      <button class="hack-btn danger" onclick="stealGold()">Steal</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Display Text on All Screens<small>Shows as a notification to all players</small></div>
+    </div>
+    <div class="hack-row">
+      <textarea class="hack-input" id="hack-adtext" placeholder="Enter message..."></textarea>
+    </div>
+    <div class="hack-row">
+      <button class="hack-btn hack-full" onclick="sendAdText()">📢 Send to All Screens</button>
+    </div>
+  </div>
+
+  <!-- CLASSIC -->
+  <div class="hack-section">
+    <div class="hack-section-title">📚 Classic</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Points</div>
+      <input type="number" class="hack-input" id="hack-points" value="9999" min="0"/>
+      <button class="hack-btn" onclick="setPoints()">Set</button>
+    </div>
+  </div>
+
+  <!-- RACING -->
+  <div class="hack-section">
+    <div class="hack-section-title">🏎️ Racing</div>
+    <div class="hack-row">
+      <div class="hack-label">Instant Win</div>
+      <button class="hack-btn green" onclick="instantWin()">Win Now</button>
+    </div>
+  </div>
+
+  <!-- FISHING FRENZY -->
+  <div class="hack-section">
+    <div class="hack-section-title">🎣 Fishing Frenzy</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Fish Weight</div>
+      <input type="number" class="hack-input" id="hack-fish" value="9999" min="0"/>
+      <button class="hack-btn" onclick="setFish()">Set</button>
+    </div>
+  </div>
+
+  <!-- FACTORY -->
+  <div class="hack-section">
+    <div class="hack-section-title">🏭 Factory</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Factory Money</div>
+      <input type="number" class="hack-input" id="hack-factory" value="9999" min="0"/>
+      <button class="hack-btn" onclick="setFactory()">Set</button>
+    </div>
+  </div>
+
+  <!-- TOWER DEFENSE -->
+  <div class="hack-section">
+    <div class="hack-section-title">🏰 Tower Defense</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Health</div>
+      <input type="number" class="hack-input" id="hack-health" value="999" min="0"/>
+      <button class="hack-btn" onclick="setHealth()">Set</button>
+    </div>
+  </div>
+
+  <!-- DEBUG -->
+  <div class="hack-section">
+    <div class="hack-section-title">🔧 Debug Log</div>
+    <div class="log-panel" id="hack-log"></div>
+  </div>
+</div>
+
+<!-- JOIN SCREEN -->
+<div class="screen active" id="join-screen">
+  <div class="blooket-logo" id="logo-tap">Bloo<span>ket</span></div>
+  <div class="join-card">
+    <h2>Enter Game Code</h2>
+    <div class="jfield">
+      <label>Game Code</label>
+      <input type="text" id="join-code" placeholder="123456" maxlength="10" inputmode="numeric"/>
+    </div>
+    <div class="jfield">
+      <label>Nickname</label>
+      <input type="text" id="join-name" placeholder="Player" maxlength="15"/>
+    </div>
+    <button class="btn btn-join" id="join-btn">Join Game</button>
+    <div class="join-err" id="join-err"></div>
+  </div>
+</div>
+
+<!-- LOBBY SCREEN -->
+<div class="screen" id="lobby-screen">
+  <div class="lobby-header">
+    <div class="game-code">Game PIN:</div>
+    <div class="game-pin" id="lobby-pin">------</div>
+    <div class="waiting">Waiting for host to start…</div>
+  </div>
+  <div class="player-count" id="player-count">0 players</div>
+  <div class="player-grid" id="player-grid"></div>
+</div>
+
+<!-- QUESTION SCREEN -->
+<div class="screen" id="question-screen">
+  <div class="q-header">
+    <div class="q-timer" id="q-timer">⏱ --</div>
+    <div class="q-points" id="q-gold-display">🏅 0</div>
+  </div>
+  <div class="q-card">
+    <div class="q-text" id="q-text">Loading question…</div>
+  </div>
+  <div class="answer-grid" id="answer-grid"></div>
+</div>
+
+<!-- GOLD SCREEN -->
+<div class="screen" id="gold-screen">
+  <div class="gold-header">
+    <h2>Choose a Chest!</h2>
+    <div class="gold-amount" id="gold-display">🏅 0</div>
+  </div>
+  <div class="steal-notif" id="steal-notif"></div>
+  <div class="chest-row" id="chest-row"></div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-rank" id="result-rank">Final Results</div>
+    <div class="result-blook" id="result-blook">🐙</div>
+    <div class="result-name" id="result-name"></div>
+    <div class="result-gold" id="result-gold">🏅 0</div>
+  </div>
+  <div class="leaderboard" id="leaderboard"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const PROXY_URL = 'https://YOUR-NETLIFY-SITE.netlify.app/.netlify/functions/join';
+const FIREBASE_API_KEY = 'AIzaSyCA-cTOnX19f6LFnDVVsHXya3k6ByP_MnU';
+const BLOOKS = ['🐙','🦊','🐧','🐻','🦁','🐯','🦄','🦅','🐸','🦋','🦀','🐺','🎃','👻','🤖','🦖'];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let gameCode = '', playerName = '', firebaseApp = null, db = null;
+let myGold = 0, myPoints = 0, players = {}, currentQuestion = null;
+let chestESPEnabled = false, autoAnswerEnabled = false;
+let logoTapCount = 0, logoTapTimer = null;
+let timerInterval = null;
+let floodApps = [];
+
+// ── UTILITIES ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function toast(msg, type = 'info', dur = 2500) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', dur);
+}
+function hackLog(msg) {
+  const el = $('hack-log');
+  const d = document.createElement('div');
+  d.textContent = new Date().toLocaleTimeString() + ' ' + msg;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+  if (el.children.length > 50) el.removeChild(el.firstChild);
+}
+
+// ── CHEAT PANEL ──────────────────────────────────────────────────────────────
+$('logo-tap').addEventListener('click', () => {
+  logoTapCount++;
+  clearTimeout(logoTapTimer);
+  if (logoTapCount >= 3) {
+    logoTapCount = 0;
+    $('cheat-panel').classList.toggle('open');
+  } else {
+    logoTapTimer = setTimeout(() => logoTapCount = 0, 700);
+  }
+});
+// Also tap logo in lobby/question by adding listeners after render
+document.addEventListener('click', e => {
+  if (!$('cheat-panel').contains(e.target) &&
+      e.target.id !== 'logo-tap' &&
+      $('cheat-panel').classList.contains('open')) {
+    // don't auto-close, user closes manually
+  }
+});
+
+$('hack-auto-answer').addEventListener('change', e => {
+  autoAnswerEnabled = e.target.checked;
+  toast(autoAnswerEnabled ? '🤖 Auto-answer ON' : '🤖 Auto-answer OFF');
+});
+
+// ── JOIN FLOW ────────────────────────────────────────────────────────────────
+$('join-btn').addEventListener('click', joinGame);
+$('join-code').addEventListener('keydown', e => e.key === 'Enter' && $('join-name').focus());
+$('join-name').addEventListener('keydown', e => e.key === 'Enter' && joinGame());
+
+async function joinGame() {
+  const code = $('join-code').value.trim();
+  const name = $('join-name').value.trim() || 'Player';
+  if (!code) { $('join-code').focus(); return; }
+
+  $('join-btn').textContent = 'Joining…';
+  $('join-btn').disabled = true;
+  $('join-err').style.display = 'none';
+
+  try {
+    const res = await fetch(`${PROXY_URL}?pin=${code}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: code, name })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      showError(data.msg || 'Could not join game. Check the code.');
+      return;
+    }
+
+    gameCode = code;
+    playerName = name;
+    hackLog(`Joined game ${code} as ${name}`);
+    hackLog(`Firebase shard: ${data.fbShardURL}`);
+
+    await initFirebase(data.fbToken, data.fbShardURL);
+    showLobby();
+
+  } catch (err) {
+    showError('Connection error: ' + err.message);
+    hackLog('Join error: ' + err.message);
+  }
+}
+
+function showError(msg) {
+  $('join-err').textContent = msg;
+  $('join-err').style.display = 'block';
+  $('join-btn').textContent = 'Join Game';
+  $('join-btn').disabled = false;
+}
+
+// ── FIREBASE ─────────────────────────────────────────────────────────────────
+async function initFirebase(token, shardURL) {
+  if (firebaseApp) {
+    try { await firebaseApp.delete(); } catch {}
+  }
+
+  firebaseApp = firebase.initializeApp({
+    apiKey: FIREBASE_API_KEY,
+    authDomain: 'blooket-2020.firebaseapp.com',
+    databaseURL: shardURL || 'https://blooket-2020-default-rtdb.firebaseio.com',
+    projectId: 'blooket-2020'
+  }, 'main-' + Date.now());
+
+  await firebaseApp.auth().signInWithCustomToken(token);
+  db = firebaseApp.database();
+  hackLog('Firebase connected ✓');
+
+  listenToGame();
+}
+
+function listenToGame() {
+  const gameRef = db.ref('/');
+  gameRef.on('value', snap => {
+    const data = snap.val();
+    if (!data) return;
+    hackLog('DB update: ' + JSON.stringify(data).substring(0, 120) + '...');
+    handleGameState(data);
+  });
+}
+
+function handleGameState(data) {
+  // Update player list
+  if (data.c) {
+    players = data.c;
+    renderPlayers(data.c);
+    updateStealTargets(data.c);
+
+    // Update my gold
+    if (data.c[playerName]) {
+      const me = data.c[playerName];
+      if (me.g !== undefined) {
+        myGold = me.g;
+        $('gold-display').textContent = '🏅 ' + myGold;
+        $('q-gold-display').textContent = '🏅 ' + myGold;
+      }
+    }
+  }
+
+  // Detect game phase
+  const phase = data.phase || data.s || data.stage;
+  hackLog('Phase: ' + phase);
+
+  if (phase === 'question' || phase === 'q' || data.question) {
+    showQuestion(data.question || data.q || data);
+  } else if (phase === 'prize' || phase === 'chest' || data.choices) {
+    showGoldChests(data.choices || data.c?.chests || []);
+  } else if (phase === 'end' || phase === 'done') {
+    showResults(data);
+  }
+}
+
+// ── LOBBY ─────────────────────────────────────────────────────────────────────
+function showLobby() {
+  $('lobby-pin').textContent = gameCode;
+  showScreen('lobby-screen');
+  renderPlayers({});
+}
+
+function renderPlayers(c) {
+  const grid = $('player-grid');
+  grid.innerHTML = '';
+  const names = Object.keys(c || {});
+  $('player-count').textContent = names.length + ' player' + (names.length !== 1 ? 's' : '');
+  names.forEach(n => {
+    const tile = document.createElement('div');
+    tile.className = 'player-tile';
+    const p = c[n];
+    tile.innerHTML = `<span class="blook">${p.b ? getBlookEmoji(p.b) : BLOOKS[Math.floor(Math.random()*BLOOKS.length)]}</span><div class="pname">${n}</div>`;
+    grid.appendChild(tile);
+  });
+}
+
+function getBlookEmoji(blookName) {
+  const map = {
+    'Octopus':'🐙','Fox':'🦊','Penguin':'🐧','Bear':'🐻','Lion':'🦁',
+    'Tiger':'🐯','Unicorn':'🦄','Eagle':'🦅','Frog':'🐸','Butterfly':'🦋',
+    'Crab':'🦀','Wolf':'🐺','Cat':'🐱','Dog':'🐶','Chicken':'🐔',
+  };
+  return map[blookName] || '🐙';
+}
+
+// ── QUESTION ──────────────────────────────────────────────────────────────────
+function showQuestion(q) {
+  if (!q || !q.question) return;
+  if (currentQuestion === q.question) return;
+  currentQuestion = q.question;
+
+  showScreen('question-screen');
+  $('q-text').textContent = q.question;
+
+  const grid = $('answer-grid');
+  grid.innerHTML = '';
+  const answers = q.answers || q.correctAnswers || [];
+  const correct = q.correctAnswers || [answers[0]];
+
+  answers.forEach((ans, i) => {
+    const tile = document.createElement('button');
+    tile.className = `answer-tile t${i % 4}`;
+    tile.textContent = ans;
+
+    const isCorrect = correct.includes(ans);
+
+    if ($('hack-chest-esp').checked || chestESPEnabled) {
+      if (isCorrect) {
+        tile.classList.add('correct');
+        const badge = document.createElement('div');
+        badge.className = 'correct-badge';
+        badge.textContent = '✓';
+        tile.appendChild(badge);
+      }
+    }
+
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('.answer-tile').forEach(t => t.classList.remove('chosen'));
+      tile.classList.add('chosen');
+      submitAnswer(i, isCorrect);
+    });
+
+    grid.appendChild(tile);
+  });
+
+  // Timer
+  startTimer(q.timeLimit || 20);
+
+  // Auto-answer
+  if (autoAnswerEnabled) {
+    const correctIdx = answers.findIndex(a => correct.includes(a));
+    const target = correctIdx >= 0 ? correctIdx : Math.floor(Math.random() * answers.length);
+    const delay = parseInt($('hack-delay').value) || 500;
+    setTimeout(() => {
+      const tiles = document.querySelectorAll('.answer-tile');
+      if (tiles[target]) tiles[target].click();
+    }, delay);
+  }
+}
+
+function startTimer(seconds) {
+  clearInterval(timerInterval);
+  let t = seconds;
+  $('q-timer').textContent = '⏱ ' + t;
+  timerInterval = setInterval(() => {
+    t--;
+    $('q-timer').textContent = '⏱ ' + Math.max(0, t);
+    if (t <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+function submitAnswer(index, isCorrect) {
+  if (!db) return;
+  db.ref('c/' + playerName).update({ a: index, at: Date.now() });
+  hackLog('Answered: ' + index + (isCorrect ? ' ✓' : ' ✗'));
+}
+
+// ── GOLD QUEST ────────────────────────────────────────────────────────────────
+function showGoldChests(choices) {
+  showScreen('gold-screen');
+  const row = $('chest-row');
+  row.innerHTML = '';
+
+  const chestIcons = ['📦','📦','📦','📦','📦'];
+  const numChests = choices.length || 5;
+
+  for (let i = 0; i < numChests; i++) {
+    const chest = document.createElement('div');
+    chest.className = 'chest';
+    const val = choices[i] || '?';
+    chest.innerHTML = `
+      <span class="chest-icon">📦</span>
+      <div class="chest-label">Chest ${i+1}</div>
+      <div class="chest-esp-text ${chestESPEnabled ? 'visible' : ''}" id="esp-${i}">${val}</div>
+    `;
+    chest.addEventListener('click', () => pickChest(i, val));
+    row.appendChild(chest);
+  }
+}
+
+function pickChest(index, val) {
+  if (!db) return;
+  db.ref('c/' + playerName).update({ pick: index, pt: Date.now() });
+  hackLog('Picked chest ' + index + ' (value: ' + val + ')');
+  toast('Chest picked!', 'success');
+}
+
+function toggleChestESP() {
+  chestESPEnabled = $('hack-chest-esp').checked;
+  document.querySelectorAll('.chest-esp-text').forEach(el => {
+    el.classList.toggle('visible', chestESPEnabled);
+  });
+  toast(chestESPEnabled ? '👁️ Chest ESP ON' : '👁️ Chest ESP OFF');
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function showResults(data) {
+  showScreen('result-screen');
+  const c = data.c || {};
+  const sorted = Object.entries(c).sort((a, b) => (b[1].g || 0) - (a[1].g || 0));
+
+  const myRank = sorted.findIndex(([n]) => n === playerName) + 1;
+  $('result-rank').textContent = `#${myRank} Place`;
+  $('result-blook').textContent = '🐙';
+  $('result-name').textContent = playerName;
+  $('result-gold').textContent = '🏅 ' + (myGold || 0);
+
+  const lb = $('leaderboard');
+  lb.innerHTML = '';
+  sorted.slice(0, 10).forEach(([name, p], i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (name === playerName ? ' me' : '');
+    row.innerHTML = `<div class="lb-rank">#${i+1}</div><div class="lb-name">${name}</div><div class="lb-gold">🏅 ${p.g || 0}</div>`;
+    lb.appendChild(row);
+  });
+}
+
+// ── UPDATE STEAL TARGETS ──────────────────────────────────────────────────────
+function updateStealTargets(c) {
+  const sel = $('hack-steal-target');
+  const current = sel.value;
+  sel.innerHTML = '';
+  Object.keys(c || {}).filter(n => n !== playerName).forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    sel.appendChild(opt);
+  });
+  if (current) sel.value = current;
+}
+
+// ── HACKS ─────────────────────────────────────────────────────────────────────
+
+function setGold() {
+  const amount = parseInt($('hack-gold-amount').value) || 0;
+  myGold = amount;
+  $('gold-display').textContent = '🏅 ' + amount;
+  $('q-gold-display').textContent = '🏅 ' + amount;
+  if (db) {
+    db.ref('c/' + playerName).update({ g: amount, g2: amount });
+    hackLog('Set gold to ' + amount);
+  }
+  toast('🏅 Gold set to ' + amount, 'success');
+  $('cheat-panel').classList.remove('open');
+}
+
+function stealGold() {
+  const target = $('hack-steal-target').value;
+  const amount = parseInt($('hack-steal-amount').value) || 500;
+  if (!target || !db) { toast('No target selected', 'error'); return; }
+
+  db.ref('c/' + playerName).update({
+    b: players[playerName]?.b || 'Octopus',
+    g: myGold,
+    tat: target + ':swap:' + amount
+  });
+
+  hackLog('Stealing ' + amount + ' gold from ' + target);
+  toast('💰 Stealing from ' + target + '!', 'info');
+}
+
+function sendAdText() {
+  const text = $('hack-adtext').value.trim();
+  if (!text || !db) { toast('Enter a message first', 'error'); return; }
+
+  // Write to each player's tat field to trigger a notification
+  Object.keys(players).filter(n => n !== playerName).forEach(n => {
+    db.ref('c/' + n).update({ tat: playerName + ':msg:' + text });
+  });
+
+  hackLog('Sent message to all: ' + text);
+  toast('📢 Message sent!', 'success');
+}
+
+function setPoints() {
+  const pts = parseInt($('hack-points').value) || 0;
+  myPoints = pts;
+  if (db) db.ref('c/' + playerName).update({ s: pts });
+  hackLog('Set points to ' + pts);
+  toast('⭐ Points set to ' + pts, 'success');
+}
+
+function instantWin() {
+  if (db) db.ref('c/' + playerName).update({ progress: 999999, p: 999999 });
+  hackLog('Instant win triggered');
+  toast('🏎️ Instant Win!', 'success');
+}
+
+function setFish() {
+  const w = parseInt($('hack-fish').value) || 0;
+  if (db) db.ref('c/' + playerName).update({ weight: w, w });
+  hackLog('Set fish weight to ' + w);
+  toast('🎣 Weight set to ' + w, 'success');
+}
+
+function setFactory() {
+  const m = parseInt($('hack-factory').value) || 0;
+  if (db) db.ref('c/' + playerName).update({ money: m, m });
+  hackLog('Set factory money to ' + m);
+  toast('🏭 Money set to ' + m, 'success');
+}
+
+function setHealth() {
+  const h = parseInt($('hack-health').value) || 0;
+  if (db) db.ref('c/' + playerName).update({ health: h, hp: h });
+  hackLog('Set health to ' + h);
+  toast('❤️ Health set to ' + h, 'success');
+}
+
+async function floodBots() {
+  const count = parseInt($('hack-flood-count').value) || 10;
+  toast('🌊 Flooding ' + count + ' bots…', 'info');
+  hackLog('Starting flood: ' + count + ' bots');
+
+  // Clean up old flood apps
+  floodApps.forEach(a => { try { a.delete(); } catch {} });
+  floodApps = [];
+
+  const names = ['Shadow','Ghost','Ninja','Storm','Blaze','Frost','Nova','Pixel',
+    'Echo','Volt','Glitch','Titan','Spark','Viper','Comet','Bolt'];
+
+  for (let i = 0; i < count; i++) {
+    const botName = names[i % names.length] + (i + 1);
+    try {
+      const res = await fetch(PROXY_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: gameCode, name: botName })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const app = firebase.initializeApp({
+          apiKey: FIREBASE_API_KEY,
+          authDomain: 'blooket-2020.firebaseapp.com',
+          databaseURL: data.fbShardURL,
+          projectId: 'blooket-2020'
+        }, 'bot-' + i + '-' + Date.now());
+        floodApps.push(app);
+        await app.auth().signInWithCustomToken(data.fbToken);
+        hackLog('Bot ' + botName + ' joined ✓');
+      }
+    } catch (e) {
+      hackLog('Bot ' + i + ' failed: ' + e.message);
+    }
+    await new Promise(r => setTimeout(r, 200));
+  }
+  toast('✅ Flood complete!', 'success');
+}
+</script>
+</body>
+</html>
