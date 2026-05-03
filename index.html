@@ -216,8 +216,13 @@
   <div class="hack-section">
     <div class="hack-section-title">🏎️ Racing</div>
     <div class="hack-row">
-      <div class="hack-label">Instant Win</div>
+      <div class="hack-label">Instant Win<small>Sets progress to goal amount</small></div>
       <button class="hack-btn green" onclick="instantWin()">Win Now</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Set Progress</div>
+      <input type="number" class="hack-input" id="hack-progress" value="999" min="0"/>
+      <button class="hack-btn" onclick="setProgress()">Set</button>
     </div>
   </div>
 
@@ -225,29 +230,124 @@
   <div class="hack-section">
     <div class="hack-section-title">🎣 Fishing Frenzy</div>
     <div class="hack-row">
-      <div class="hack-label">Set Fish Weight</div>
+      <div class="hack-label">Set Weight</div>
       <input type="number" class="hack-input" id="hack-fish" value="9999" min="0"/>
       <button class="hack-btn" onclick="setFish()">Set</button>
     </div>
-  </div>
-
-  <!-- FACTORY -->
-  <div class="hack-section">
-    <div class="hack-section-title">🏭 Factory</div>
     <div class="hack-row">
-      <div class="hack-label">Set Factory Money</div>
-      <input type="number" class="hack-input" id="hack-factory" value="9999" min="0"/>
-      <button class="hack-btn" onclick="setFactory()">Set</button>
+      <div class="hack-label">Frenzy Mode<small>Sets you to frenzy</small></div>
+      <button class="hack-btn green" onclick="setFrenzy()">Frenzy</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Send Distraction</div>
+      <select class="hack-input" id="hack-distraction" style="flex:1">
+        <option>Crab</option><option>Jellyfish</option><option>Frog</option>
+        <option>Pufferfish</option><option>Octopus</option><option>Narwhal</option>
+        <option>Megalodon</option><option>Blobfish</option><option>Baby Shark</option>
+      </select>
+      <button class="hack-btn danger" onclick="sendDistraction()">Send</button>
     </div>
   </div>
 
-  <!-- TOWER DEFENSE -->
+  <!-- GOLD QUEST extras -->
   <div class="hack-section">
-    <div class="hack-section-title">🏰 Tower Defense</div>
+    <div class="hack-section-title">🏅 Gold Quest — Player Control</div>
     <div class="hack-row">
-      <div class="hack-label">Set Health</div>
-      <input type="number" class="hack-input" id="hack-health" value="999" min="0"/>
-      <button class="hack-btn" onclick="setHealth()">Set</button>
+      <div class="hack-label">Set Player's Gold<small>Force set another player's gold</small></div>
+    </div>
+    <div class="hack-row">
+      <select class="hack-input" id="hack-steal-target" style="flex:1"></select>
+      <input type="number" class="hack-input" id="hack-steal-amount" value="0" min="0" style="width:80px"/>
+      <button class="hack-btn gold" onclick="setPlayerGold()">Set</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Steal (Swap) Gold From</div>
+      <select class="hack-input" id="hack-swap-target" style="flex:1"></select>
+      <button class="hack-btn danger" onclick="swapGold()">Steal</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Reset Player's Gold to 0</div>
+      <select class="hack-input" id="hack-reset-target" style="flex:1"></select>
+      <button class="hack-btn danger" onclick="resetPlayerGold()">Reset</button>
+    </div>
+  </div>
+
+  <!-- CRYPTO HACK -->
+  <div class="hack-section">
+    <div class="hack-section-title">💻 Crypto Hack</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Crypto</div>
+      <input type="number" class="hack-input" id="hack-crypto" value="9999" min="0"/>
+      <button class="hack-btn" onclick="setCrypto()">Set</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Set Password</div>
+      <input type="text" class="hack-input" id="hack-password" placeholder="newpass" style="flex:1"/>
+      <button class="hack-btn" onclick="setPassword()">Set</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Send Glitch to Everyone</div>
+      <select class="hack-input" id="hack-glitch" style="flex:1">
+        <option value="lb">Lunch Break</option>
+        <option value="as">Ad Spam</option>
+        <option value="e37">Error 37</option>
+        <option value="nt">Night Time</option>
+        <option value="lo">#LOL</option>
+        <option value="j">Jokester</option>
+        <option value="sm">Slow Mo</option>
+        <option value="dp">Dance Party</option>
+        <option value="v">Vortex</option>
+        <option value="r">Reverse</option>
+        <option value="f">Flip</option>
+        <option value="m">Micro</option>
+      </select>
+      <button class="hack-btn danger" onclick="sendGlitch()">Send</button>
+    </div>
+  </div>
+
+  <!-- BLOOK RUSH -->
+  <div class="hack-section">
+    <div class="hack-section-title">🌊 Blook Rush</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Blooks</div>
+      <input type="number" class="hack-input" id="hack-blooks" value="999" min="0"/>
+      <button class="hack-btn" onclick="setBlooks()">Set</button>
+    </div>
+    <div class="hack-row">
+      <div class="hack-label">Set Defense (max 4)</div>
+      <input type="number" class="hack-input" id="hack-defense" value="4" min="0" max="4"/>
+      <button class="hack-btn" onclick="setDefense()">Set</button>
+    </div>
+  </div>
+
+  <!-- PIRATE -->
+  <div class="hack-section">
+    <div class="hack-section-title">🏴‍☠️ Pirate</div>
+    <div class="hack-row">
+      <div class="hack-label">Set Doubloons</div>
+      <input type="number" class="hack-input" id="hack-doubloons" value="9999" min="0"/>
+      <button class="hack-btn gold" onclick="setDoubloons()">Set</button>
+    </div>
+  </div>
+
+  <!-- SANTA'S WORKSHOP -->
+  <div class="hack-section">
+    <div class="hack-section-title">🎅 Santa's Workshop</div>
+    <div class="hack-row">
+      <div class="hack-label">Swap Toys With Player</div>
+      <select class="hack-input" id="hack-toy-target" style="flex:1"></select>
+      <button class="hack-btn green" onclick="swapToys()">Swap</button>
+    </div>
+  </div>
+
+  <!-- SEND MESSAGE -->
+  <div class="hack-section">
+    <div class="hack-section-title">📢 Send Message to All</div>
+    <div class="hack-row">
+      <textarea class="hack-input" id="hack-adtext" placeholder="Enter message..." style="width:100%;height:50px;resize:none"></textarea>
+    </div>
+    <div class="hack-row">
+      <button class="hack-btn hack-full" onclick="sendAdText()">Send to All Screens</button>
     </div>
   </div>
 
@@ -658,94 +758,215 @@ function showResults(data) {
 
 // ── UPDATE STEAL TARGETS ──────────────────────────────────────────────────────
 function updateStealTargets(c) {
-  const sel = $('hack-steal-target');
-  const current = sel.value;
-  sel.innerHTML = '';
-  Object.keys(c || {}).filter(n => n !== playerName).forEach(n => {
-    const opt = document.createElement('option');
-    opt.value = n;
-    opt.textContent = n;
-    sel.appendChild(opt);
+  const names = Object.keys(c || {}).filter(n => n !== playerName);
+  ['hack-steal-target','hack-swap-target','hack-reset-target','hack-toy-target'].forEach(id => {
+    const sel = $(id);
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '';
+    names.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n; opt.textContent = n;
+      sel.appendChild(opt);
+    });
+    if (current && names.includes(current)) sel.value = current;
   });
-  if (current) sel.value = current;
 }
 
 // ── HACKS ─────────────────────────────────────────────────────────────────────
 
+function requireDb() {
+  if (!db) { toast('Not in a game yet', 'error'); return false; }
+  return true;
+}
+function myBlook() { return players[playerName]?.b || 'Octopus'; }
+
+// ── GOLD QUEST ────────────────────────────────────────────────────────────────
 function setGold() {
+  if (!requireDb()) return;
   const amount = parseInt($('hack-gold-amount').value) || 0;
   myGold = amount;
   $('gold-display').textContent = '🏅 ' + amount;
   $('q-gold-display').textContent = '🏅 ' + amount;
-  if (db) {
-    db.ref('c/' + playerName).update({ g: amount, g2: amount });
-    hackLog('Set gold to ' + amount);
-  }
+  db.ref('c/' + playerName + '/g').set(amount);
+  hackLog('Set gold → ' + amount);
   toast('🏅 Gold set to ' + amount, 'success');
-  $('cheat-panel').classList.remove('open');
 }
 
-function stealGold() {
+function setPlayerGold() {
+  if (!requireDb()) return;
   const target = $('hack-steal-target').value;
-  const amount = parseInt($('hack-steal-amount').value) || 500;
-  if (!target || !db) { toast('No target selected', 'error'); return; }
+  const amount = parseInt($('hack-steal-amount').value) || 0;
+  if (!target) { toast('Select a player', 'error'); return; }
+  // Uses tat swap mechanism from gui.js: path c/{me}/tat = "{target}:swap:{amount}"
+  db.ref('c/' + playerName + '/tat').set(target + ':swap:' + amount);
+  hackLog('Set ' + target + ' gold → ' + amount);
+  toast('🏅 Set ' + target + "'s gold to " + amount, 'success');
+}
 
+function swapGold() {
+  if (!requireDb()) return;
+  const target = $('hack-swap-target').value;
+  if (!target) { toast('Select a player', 'error'); return; }
+  const theirGold = players[target]?.g || 0;
+  // Swap: take their gold, give them yours (gui.js: Swap Gold)
   db.ref('c/' + playerName).update({
-    b: players[playerName]?.b || 'Octopus',
-    g: myGold,
-    tat: target + ':swap:' + amount
+    b: myBlook(),
+    tat: target + ':swap:' + (myGold || 0),
+    g: theirGold
   });
-
-  hackLog('Stealing ' + amount + ' gold from ' + target);
-  toast('💰 Stealing from ' + target + '!', 'info');
+  hackLog('Swapped gold with ' + target + ' (took ' + theirGold + ')');
+  toast('💰 Stole ' + theirGold + ' gold from ' + target, 'success');
 }
 
-function sendAdText() {
-  const text = $('hack-adtext').value.trim();
-  if (!text || !db) { toast('Enter a message first', 'error'); return; }
-
-  // Write to each player's tat field to trigger a notification
-  Object.keys(players).filter(n => n !== playerName).forEach(n => {
-    db.ref('c/' + n).update({ tat: playerName + ':msg:' + text });
-  });
-
-  hackLog('Sent message to all: ' + text);
-  toast('📢 Message sent!', 'success');
+function resetPlayerGold() {
+  if (!requireDb()) return;
+  const target = $('hack-reset-target').value;
+  if (!target) { toast('Select a player', 'error'); return; }
+  // gui.js: Reset Players Gold → tat = "{target}:swap:0"
+  db.ref('c/' + playerName + '/tat').set(target + ':swap:0');
+  hackLog('Reset ' + target + ' gold → 0');
+  toast('💀 Reset ' + target + "'s gold to 0", 'success');
 }
 
+// ── CLASSIC ───────────────────────────────────────────────────────────────────
 function setPoints() {
+  if (!requireDb()) return;
   const pts = parseInt($('hack-points').value) || 0;
-  myPoints = pts;
-  if (db) db.ref('c/' + playerName).update({ s: pts });
-  hackLog('Set points to ' + pts);
+  db.ref('c/' + playerName + '/s').set(pts);
+  hackLog('Set points → ' + pts);
   toast('⭐ Points set to ' + pts, 'success');
 }
 
+// ── RACING ────────────────────────────────────────────────────────────────────
 function instantWin() {
-  if (db) db.ref('c/' + playerName).update({ progress: 999999, p: 999999 });
+  if (!requireDb()) return;
+  // gui.js: sets pr to goalAmount — we use a very large number
+  db.ref('c/' + playerName + '/pr').set(999999);
   hackLog('Instant win triggered');
   toast('🏎️ Instant Win!', 'success');
 }
 
+function setProgress() {
+  if (!requireDb()) return;
+  const pr = parseInt($('hack-progress').value) || 0;
+  db.ref('c/' + playerName + '/pr').set(pr);
+  hackLog('Set progress → ' + pr);
+  toast('🏎️ Progress set to ' + pr, 'success');
+}
+
+// ── FISHING FRENZY ────────────────────────────────────────────────────────────
 function setFish() {
+  if (!requireDb()) return;
   const w = parseInt($('hack-fish').value) || 0;
-  if (db) db.ref('c/' + playerName).update({ weight: w, w });
-  hackLog('Set fish weight to ' + w);
+  // gui.js: Set Weight → c/{name} = {b, w, f: random distraction}
+  const distractions = ['Crab','Jellyfish','Frog','Pufferfish','Octopus','Narwhal','Megalodon','Blobfish','Baby Shark'];
+  db.ref('c/' + playerName).update({
+    b: myBlook(),
+    w,
+    f: distractions[Math.floor(Math.random() * distractions.length)]
+  });
+  hackLog('Set fish weight → ' + w);
   toast('🎣 Weight set to ' + w, 'success');
 }
 
-function setFactory() {
-  const m = parseInt($('hack-factory').value) || 0;
-  if (db) db.ref('c/' + playerName).update({ money: m, m });
-  hackLog('Set factory money to ' + m);
-  toast('🏭 Money set to ' + m, 'success');
+function setFrenzy() {
+  if (!requireDb()) return;
+  // gui.js: Frenzy → c/{name} = {b, w, f: "Frenzy", s: true}
+  db.ref('c/' + playerName).update({ b: myBlook(), w: 9999, f: 'Frenzy', s: true });
+  hackLog('Frenzy mode activated');
+  toast('🎣 Frenzy!', 'success');
 }
 
-function setHealth() {
-  const h = parseInt($('hack-health').value) || 0;
-  if (db) db.ref('c/' + playerName).update({ health: h, hp: h });
-  hackLog('Set health to ' + h);
-  toast('❤️ Health set to ' + h, 'success');
+function sendDistraction() {
+  if (!requireDb()) return;
+  const f = $('hack-distraction').value;
+  // gui.js: Send Distraction → c/{name} = {b, w, f: distraction, s: true}
+  db.ref('c/' + playerName).update({ b: myBlook(), w: players[playerName]?.w || 0, f, s: true });
+  hackLog('Sent distraction: ' + f);
+  toast('🎣 Sent ' + f + ' distraction!', 'success');
+}
+
+// ── CRYPTO HACK ───────────────────────────────────────────────────────────────
+function setCrypto() {
+  if (!requireDb()) return;
+  const amount = parseInt($('hack-crypto').value) || 0;
+  // gui.js: Set Crypto → c/{name}/cr = amount
+  db.ref('c/' + playerName + '/cr').set(amount);
+  hackLog('Set crypto → ' + amount);
+  toast('💻 Crypto set to ' + amount, 'success');
+}
+
+function setPassword() {
+  if (!requireDb()) return;
+  const password = $('hack-password').value.trim();
+  if (!password) { toast('Enter a password', 'error'); return; }
+  // gui.js: Set Password → c/{name}/p = password
+  db.ref('c/' + playerName + '/p').set(password);
+  hackLog('Set password → ' + password);
+  toast('💻 Password set to ' + password, 'success');
+}
+
+function sendGlitch() {
+  if (!requireDb()) return;
+  const val = $('hack-glitch').value;
+  // gui.js: Send Glitch → c/{name}/tat = glitchCode
+  db.ref('c/' + playerName + '/tat').set(val);
+  hackLog('Sent glitch: ' + val);
+  toast('💻 Glitch sent!', 'danger');
+}
+
+// ── BLOOK RUSH ────────────────────────────────────────────────────────────────
+function setBlooks() {
+  if (!requireDb()) return;
+  const numBlooks = parseInt($('hack-blooks').value) || 0;
+  // gui.js: Set Blooks → c/{name}/bs = numBlooks
+  db.ref('c/' + playerName + '/bs').set(numBlooks);
+  hackLog('Set blooks → ' + numBlooks);
+  toast('🌊 Blooks set to ' + numBlooks, 'success');
+}
+
+function setDefense() {
+  if (!requireDb()) return;
+  const d = Math.min(parseInt($('hack-defense').value) || 0, 4);
+  // gui.js: Set Defense → c/{name}/d = defense
+  db.ref('c/' + playerName + '/d').set(d);
+  hackLog('Set defense → ' + d);
+  toast('🌊 Defense set to ' + d, 'success');
+}
+
+// ── PIRATE ────────────────────────────────────────────────────────────────────
+function setDoubloons() {
+  if (!requireDb()) return;
+  const doubloons = parseInt($('hack-doubloons').value) || 0;
+  // gui.js: Set Doubloons → c/{name}/d = doubloons
+  db.ref('c/' + playerName + '/d').set(doubloons);
+  hackLog('Set doubloons → ' + doubloons);
+  toast('🏴‍☠️ Doubloons set to ' + doubloons, 'success');
+}
+
+// ── SANTA'S WORKSHOP ──────────────────────────────────────────────────────────
+function swapToys() {
+  if (!requireDb()) return;
+  const target = $('hack-toy-target').value;
+  if (!target) { toast('Select a player', 'error'); return; }
+  const myToys = players[playerName]?.t || 0;
+  // gui.js: Swap Toys → c/{name}/tat = "{target}:swap:{myToys}"
+  db.ref('c/' + playerName + '/tat').set(target + ':swap:' + myToys);
+  hackLog('Swapped toys with ' + target);
+  toast('🎅 Swapped toys with ' + target, 'success');
+}
+
+// ── SEND MESSAGE ──────────────────────────────────────────────────────────────
+function sendAdText() {
+  if (!requireDb()) return;
+  const text = $('hack-adtext').value.trim();
+  if (!text) { toast('Enter a message first', 'error'); return; }
+  Object.keys(players).filter(n => n !== playerName).forEach(n => {
+    db.ref('c/' + n + '/tat').set(playerName + ':msg:' + text);
+  });
+  hackLog('Sent message to all: ' + text);
+  toast('📢 Message sent!', 'success');
 }
 
 async function floodBots() {
