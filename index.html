@@ -505,16 +505,9 @@ async function joinGame() {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ id: code, name })
 });
-const rawText = await res.text();
-console.log('Join response:', res.status, rawText);
-let data;
-try { data = JSON.parse(rawText); } catch(e) {
-  showError('Server error: ' + rawText.substring(0, 100));
-  return;
-}
-
+const data = await res.json();
 if (!data.success) {
-  showError((data.msg || 'Could not join game. Check the code.') + ' | Raw: ' + rawText.substring(0, 80));
+  showError(data.msg || 'Could not join game. Check the code.');
   return;
 }
 
