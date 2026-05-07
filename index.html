@@ -579,6 +579,7 @@ class GimBot {
     this.sessionId  = null;
     this.serverUrl  = null;
     this.roomId     = null;
+    this.wsUrl      = null;
     this.aiInterval = null;
     this.currentQuestion = null;
   }
@@ -622,12 +623,24 @@ class GimBot {
 
       // Step 3: join by ID
       const joinRes = await fetch(`${this.serverUrl}/matchmake/joinById/${this.roomId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json", "Origin": "https://www.gimkit.com" }
-      });
-      const joinData = await joinRes.json();
-      this.sessionId = joinData.sessionId || joinData.session || "";
-      this.log(`Session: ${this.sessionId.substring(0,16)}...`, "info");
+  method: "POST",
+  headers: { "Content-Type": "application/json", "Accept": "application/json", "Origin": "https://www.gimkit.com" }
+});
+const joinData = await joinRes.json();
+this.log(`joinData: ${JSON.stringify(joinData).substring(0, 200)}`, "info");
+
+// Extract sessionId — may be nested
+this.sessionId = joinData.sessionId || joinData.session
+  || (joinData.room && joinData.room.sessionId)
+  || (joinData.seat && joinData.seat.sessionId) || "";
+
+// Extract the real WebSocket URL if present
+const rawWsUrl = joinData.wsUrl || joinData.ws || joinData.serverUrl
+  || (joinData.room && joinData.room.wsUrl) || null;
+if (rawWsUrl) this.wsUrl = rawWsUrl;
+
+this.log(`Session: ${this.sessionId.substring(0,16) || "none"}`, "info");
+this.log(`WS URL from API: ${rawWsUrl || "none — will construct"}`, "info");
 
       // Step 4: WebSocket
       this.openWS();
@@ -640,11 +653,15 @@ class GimBot {
   }
 
   openWS() {
-    const wsBase = this.serverUrl.replace("https://","wss://").replace("http://","ws://");
-    const urls = [
-      `${wsBase}/?sessionId=${this.sessionId}`,
-      `${wsBase}/${this.roomId}?sessionId=${this.sessionId}`,
-    ];
+  // Use the WebSocket URL returned directly by the API if available,
+  // otherwise fall back to constructing one from serverUrl
+  const wsBase = this.serverUrl.replace("https://","wss://").replace("http://","ws://");
+  const urls = this.wsUrl
+    ? [ this.wsUrl.includes("sessionId") ? this.wsUrl : `${this.wsUrl}?sessionId=${this.sessionId}` ]
+    : [
+        `${wsBase}/?sessionId=${this.sessionId}`,
+        `${wsBase}/${this.roomId}?sessionId=${this.sessionId}`,
+      ];
 
     const tryUrl = (i) => {
       if (i >= urls.length) {
